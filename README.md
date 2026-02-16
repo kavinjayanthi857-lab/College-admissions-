@@ -10,7 +10,7 @@
         }
 
         .container {
-            background: black;
+            background:white;
             padding: 20px;
             max-width: 500px;
             margin: auto;
@@ -26,7 +26,7 @@
 
         button {
             background: #007bff;
-            color: black;
+            color: white;
             border: none;
             cursor: pointer;
         }
