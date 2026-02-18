@@ -1,116 +1,183 @@
 # College-admissions-<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
-    <title>AI Admission Chatbot</title>
+    <title>AI Admission Portal</title>
+
     <style>
         body {
-            font-family: Arial;
-            background: #f4f6f9;
+            font-family: Arial, sans-serif;
+            background: url("bg.jpg") no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
             padding: 20px;
         }
 
         .container {
-            background:white;
-            padding: 20px;
-            max-width: 500px;
+            background: rgba(255,255,255,0.93);
+            max-width: 550px;
             margin: auto;
-            border-radius: 10px;
-            box-shadow: 0 0 10px #ccc;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 0 20px #000;
         }
+
+        h2 { text-align: center; }
 
         input, select, button {
             width: 100%;
             padding: 10px;
             margin: 8px 0;
+            border-radius: 6px;
+            border: 1px solid #ccc;
         }
 
         button {
             background: #007bff;
             color: white;
+            font-size: 16px;
             border: none;
             cursor: pointer;
         }
 
-        button:hover {
-            background: #0056b3;
-        }
+        button:hover { background: #0056b3; }
 
         .result {
             margin-top: 15px;
-            background: #f0f0f0;
+            background: #f2f2f2;
             padding: 10px;
-            border-radius: 5px;
+            border-radius: 6px;
         }
+
+        .hidden { display: none; }
+
+        hr { border: 0.5px solid #ccc; }
     </style>
 </head>
+
 <body>
 
-<div class="container">
-    <h2>AI Admission Chatbot</h2>
+<!-- LOGIN PAGE -->
+<div class="container" id="loginPage">
+    <h2>Login</h2>
 
-    <input type="text" id="name" placeholder="Enter your name">
-    <input type="number" id="mark" placeholder="Enter 12th mark (%)">
+    <select id="role">
+        <option value="student">Student</option>
+        <option value="staff">Staff</option>
+    </select>
+
+    <input type="text" id="username" placeholder="Username">
+    <input type="password" id="password" placeholder="Password">
+
+    <button onclick="login()">Login</button>
+
+    <div class="result" id="loginMsg"></div>
+</div>
+
+<!-- STUDENT PAGE -->
+<div class="container hidden" id="studentPage">
+    <h2>Student Admission Search</h2>
+
+    <input type="text" id="sname" placeholder="Student Name">
+    <input type="number" id="mark" placeholder="12th Mark (%)">
 
     <select id="course">
         <option>BSC</option>
         <option>BCA</option>
         <option>BCOM</option>
         <option>BA</option>
-        <option>MBBS</option>
         <option>BTECH</option>
     </select>
 
-    <input type="number" id="fee" placeholder="Enter maximum fee limit">
+    <input type="number" id="fee" placeholder="Max Fee Limit">
+    <input type="text" id="district" placeholder="District">
 
-    <button onclick="searchCollege()">Search</button>
+    <button onclick="searchCollege()">Search Colleges</button>
+    <button onclick="logout()">Logout</button>
 
     <div class="result" id="output"></div>
 </div>
 
-<script>
-function searchCollege() {
+<!-- STAFF PAGE -->
+<div class="container hidden" id="staffPage">
+    <h2>Staff – Add College</h2>
 
-    let name = document.getElementById("name").value;
+    <input type="text" id="cname" placeholder="College Name">
+    <input type="text" id="cdistrict" placeholder="District">
+    <input type="text" id="ccourse" placeholder="Courses (BSC,BCA)">
+    <input type="number" id="cfee" placeholder="Annual Fee">
+    <input type="number" id="cmark" placeholder="Minimum Mark">
+
+    <button onclick="addCollege()">Add College</button>
+    <button onclick="logout()">Logout</button>
+
+    <div class="result" id="staffMsg"></div>
+</div>
+
+<script>
+let colleges = [
+    {name:"PSG College of Arts and Science", district:"coimbatore", course:["BSC","BCA","BCOM"], fee:55000, min:60},
+    {name:"Loyola College", district:"chennai", course:["BA","BSC","BCOM"], fee:65000, min:65},
+    {name:"Government Arts College Salem", district:"salem", course:["BA","BCOM","BSC"], fee:12000, min:50}
+];
+
+function login() {
+    let role = document.getElementById("role").value;
+    let user = document.getElementById("username").value;
+    let pass = document.getElementById("password").value;
+
+    if (role === "student" && user === "student" && pass === "student123") {
+        showPage("studentPage");
+    } 
+    else if (role === "staff" && user === "staff" && pass === "staff123") {
+        showPage("staffPage");
+    } 
+    else {
+        document.getElementById("loginMsg").innerHTML = "Invalid login details!";
+    }
+}
+
+function showPage(pageId) {
+    document.getElementById("loginPage").classList.add("hidden");
+    document.getElementById("studentPage").classList.add("hidden");
+    document.getElementById("staffPage").classList.add("hidden");
+    document.getElementById(pageId).classList.remove("hidden");
+}
+
+function logout() {
+    showPage("loginPage");
+}
+
+function searchCollege() {
     let mark = parseInt(document.getElementById("mark").value);
     let course = document.getElementById("course").value;
-    let fee_limit = parseInt(document.getElementById("fee").value);
-
-    let colleges = [
-        {name:"Nehru Arts and Science College", course:["BSC","BCA","BCOM","BA"], fee:40000, last_date:"30-06-2026", min_mark:50},
-        {name:"Krishna College of Arts and Science", course:["BSC","BCOM","BA"], fee:35000, last_date:"25-06-2026", min_mark:50},
-        {name:"Ramakrishna College of Arts and Science", course:["BSC","BCA"], fee:60000, last_date:"28-06-2026", min_mark:60},
-        {name:"Nehru Institution of Technology", course:["BCA","BSC","BTECH"], fee:75000, last_date:"20-06-2026", min_mark:60},
-        {name:"Kovai Medical College", course:["MBBS"], fee:500000, last_date:"15-06-2026", min_mark:85},
-
-        {name:"PSG College of Arts and Science", course:["BSC","BCA","BCOM","BA"], fee:55000, last_date:"30-06-2026", min_mark:60},
-        {name:"Hindusthan College of Arts and Science", course:["BSC","BCA","BCOM","BA"], fee:45000, last_date:"27-06-2026", min_mark:55},
-        {name:"Sri Ramakrishna Engineering College", course:["BTECH"], fee:120000, last_date:"22-06-2026", min_mark:70},
-        {name:"Dr NGP Arts and Science College", course:["BSC","BCA","BCOM"], fee:48000, last_date:"29-06-2026", min_mark:55},
-        {name:"Government Arts College Coimbatore", course:["BSC","BCOM","BA"], fee:12000, last_date:"10-07-2026", min_mark:50},
-        {name:"Karpagam Academy of Higher Education", course:["BSC","BCA","BTECH"], fee:85000, last_date:"24-06-2026", min_mark:65},
-        {name:"Amrita School of Engineering", course:["BTECH"], fee:150000, last_date:"18-06-2026", min_mark:75},
-        {name:"KMCH College of Allied Health Sciences", course:["BSC"], fee:70000, last_date:"26-06-2026", min_mark:60},
-        {name:"SNS College of Technology", course:["BTECH"], fee:90000, last_date:"23-06-2026", min_mark:65},
-        {name:"Sri Krishna Arts and Science College", course:["BSC","BCA","BCOM"], fee:42000, last_date:"28-06-2026", min_mark:55}
-    ];
+    let fee = parseInt(document.getElementById("fee").value);
+    let district = document.getElementById("district").value.toLowerCase();
 
     let result = "";
     let found = false;
 
-    for(let college of colleges) {
-        if(college.course.includes(course) && mark >= college.min_mark && college.fee <= fee_limit) {
-            result += `<b>${college.name}</b><br>
-                       Fees: ₹${college.fee}<br>
-                       Last Date: ${college.last_date}<br><hr>`;
+    for (let c of colleges) {
+        if (c.district === district && c.course.includes(course) && mark >= c.min && fee >= c.fee) {
+            result += `<b>${c.name}</b><br>Fee: ₹${c.fee}<br><hr>`;
             found = true;
         }
     }
 
-    if(!found) {
-        result = "No colleges found within your fee limit.";
-    }
+    if (!found) result = "No colleges found.";
 
     document.getElementById("output").innerHTML = result;
+}
+
+function addCollege() {
+    let name = document.getElementById("cname").value;
+    let district = document.getElementById("cdistrict").value.toLowerCase();
+    let course = document.getElementById("ccourse").value.split(",");
+    let fee = parseInt(document.getElementById("cfee").value);
+    let min = parseInt(document.getElementById("cmark").value);
+
+    colleges.push({name:name, district:district, course:course, fee:fee, min:min});
+    document.getElementById("staffMsg").innerHTML = "College added successfully!";
 }
 </script>
 
