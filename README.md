@@ -2,38 +2,57 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Arts & Science College Admission</title>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js"></script>
-
+  <title>College Admission Portal</title>
   <style>
     body {
       font-family: Arial;
-      background: url("yourimage.jpg");
-      background-size: cover;
+      background: #f2f2f2;
       text-align: center;
-    }
-    input, select, button {
-      margin: 5px;
-      padding: 8px;
     }
     .box {
       background: white;
       padding: 20px;
       margin: 20px auto;
-      width: 300px;
+      width: 320px;
       border-radius: 10px;
+      box-shadow: 0 0 10px #ccc;
+    }
+    input, select, button {
+      margin: 5px;
+      padding: 8px;
+      width: 90%;
+    }
+    img {
+      margin-top: 5px;
     }
   </style>
 </head>
 <body>
 
-<h1>Arts & Science College Admission Portal</h1>
+<h2>Arts & Science College Admission Portal</h2>
 
+<!-- Role Selection -->
 <div class="box">
-  <h3>Student Register</h3>
+  <h3>Select Role</h3>
+  <select id="role">
+    <option value="student">Student</option>
+    <option value="staff">Staff</option>
+  </select>
+</div>
+
+<!-- Phone Login -->
+<div class="box">
+  <h3>Phone Login</h3>
+  <input type="text" id="phone" placeholder="+91XXXXXXXXXX"><br>
+  <div id="recaptcha-container"></div><br>
+  <button onclick="sendOTP()">Send OTP</button><br><br>
+  <input type="text" id="otp" placeholder="Enter OTP"><br>
+  <button onclick="verifyOTP()">Verify OTP</button>
+</div>
+
+<!-- Student Details -->
+<div class="box" id="studentBox" style="display:none;">
+  <h3>Student Details</h3>
   <input type="text" id="sname" placeholder="Name"><br>
   <input type="number" id="smark" placeholder="12th Mark"><br>
   <select id="sdistrict">
@@ -42,20 +61,12 @@
     <option>Madurai</option>
     <option>Trichy</option>
   </select><br>
-  <input type="email" id="semail" placeholder="Email"><br>
-  <input type="password" id="spass" placeholder="Password"><br>
-  <button onclick="studentRegister()">Register</button>
+  <button onclick="saveStudent()">Save</button>
 </div>
 
-<div class="box">
-  <h3>Login</h3>
-  <input type="email" id="loginEmail" placeholder="Email"><br>
-  <input type="password" id="loginPass" placeholder="Password"><br>
-  <button onclick="login()">Login</button>
-</div>
-
-<div class="box">
-  <h3>Staff Add College</h3>
+<!-- Staff Add College -->
+<div class="box" id="staffBox" style="display:none;">
+  <h3>Add College</h3>
   <input type="text" id="cname" placeholder="College Name"><br>
   <select id="cdistrict">
     <option>Chennai</option>
@@ -68,93 +79,133 @@
   <button onclick="addCollege()">Add College</button>
 </div>
 
-<div class="box">
+<!-- College List -->
+<div class="box" id="collegeBox" style="display:none;">
   <h3>Colleges</h3>
   <div id="collegeList"></div>
 </div>
 
-<script>
-  // 🔥 Replace with your Firebase config
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_BUCKET",
-    messagingSenderId: "YOUR_ID",
-    appId: "YOUR_APP_ID"
-  };
+<script type="module">
 
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  const storage = firebase.storage();
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { getAuth, RecaptchaVerifier, signInWithPhoneNumber } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, doc, setDoc, getDoc, collection, addDoc, query, where, getDocs } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } 
+from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
 
-  function studentRegister() {
-    const email = semail.value;
-    const pass = spass.value;
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_BUCKET",
+  messagingSenderId: "YOUR_ID",
+  appId: "YOUR_APP_ID"
+};
 
-    auth.createUserWithEmailAndPassword(email, pass)
-    .then((userCredential) => {
-      db.collection("students").doc(userCredential.user.uid).set({
-        name: sname.value,
-        mark: smark.value,
-        district: sdistrict.value,
-        email: email
-      });
-      alert("Student Registered Successfully!");
-    });
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+window.recaptchaVerifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
+  'size': 'normal'
+});
+
+let confirmationResult;
+let currentUser;
+
+// Send OTP
+window.sendOTP = async function () {
+  const phoneNumber = document.getElementById("phone").value;
+  confirmationResult = await signInWithPhoneNumber(auth, phoneNumber, window.recaptchaVerifier);
+  alert("OTP Sent!");
+}
+
+// Verify OTP
+window.verifyOTP = async function () {
+  const code = document.getElementById("otp").value;
+  const result = await confirmationResult.confirm(code);
+  currentUser = result.user;
+
+  const role = document.getElementById("role").value;
+
+  await setDoc(doc(db, "users", currentUser.uid), {
+    phone: currentUser.phoneNumber,
+    role: role
+  });
+
+  alert("Login Successful!");
+  loadDashboard(role);
+}
+
+// Load Dashboard
+async function loadDashboard(role) {
+
+  if(role === "student"){
+    document.getElementById("studentBox").style.display = "block";
+    document.getElementById("collegeBox").style.display = "block";
   }
-
-  function login() {
-    auth.signInWithEmailAndPassword(loginEmail.value, loginPass.value)
-    .then(() => {
-      alert("Login Success");
-      loadColleges();
-    });
+  else{
+    document.getElementById("staffBox").style.display = "block";
   }
+}
 
-  function addCollege() {
-    const file = cphoto.files[0];
-    const storageRef = storage.ref("collegePhotos/" + file.name);
+// Save Student
+window.saveStudent = async function () {
+  await setDoc(doc(db, "students", currentUser.uid), {
+    name: document.getElementById("sname").value,
+    mark: document.getElementById("smark").value,
+    district: document.getElementById("sdistrict").value
+  });
 
-    storageRef.put(file).then(() => {
-      storageRef.getDownloadURL().then((url) => {
-        db.collection("colleges").add({
-          name: cname.value,
-          district: cdistrict.value,
-          course: ccourse.value,
-          photo: url
-        });
-        alert("College Added!");
-      });
-    });
-  }
+  alert("Student Data Saved!");
+  loadColleges();
+}
 
-  function loadColleges() {
-    auth.onAuthStateChanged(user => {
-      if(user){
-        db.collection("students").doc(user.uid).get().then(doc => {
-          const studentDistrict = doc.data().district;
+// Add College (Staff)
+window.addCollege = async function () {
 
-          db.collection("colleges")
-          .where("district", "==", studentDistrict)
-          .get()
-          .then(snapshot => {
-            collegeList.innerHTML = "";
-            snapshot.forEach(doc => {
-              const data = doc.data();
-              collegeList.innerHTML += `
-                <h4>${data.name}</h4>
-                <img src="${data.photo}" width="100"><br>
-                ${data.course}<hr>
-              `;
-            });
-          });
-        });
-      }
-    });
-  }
+  const file = document.getElementById("cphoto").files[0];
+  const storageRef = ref(storage, "collegePhotos/" + file.name);
+
+  await uploadBytes(storageRef, file);
+  const url = await getDownloadURL(storageRef);
+
+  await addDoc(collection(db, "colleges"), {
+    name: document.getElementById("cname").value,
+    district: document.getElementById("cdistrict").value,
+    course: document.getElementById("ccourse").value,
+    photo: url
+  });
+
+  alert("College Added!");
+}
+
+// Load Colleges for Student
+async function loadColleges(){
+
+  const docSnap = await getDoc(doc(db, "students", currentUser.uid));
+  const studentDistrict = docSnap.data().district;
+
+  const q = query(collection(db, "colleges"), where("district", "==", studentDistrict));
+  const querySnapshot = await getDocs(q);
+
+  document.getElementById("collegeList").innerHTML = "";
+
+  querySnapshot.forEach((doc) => {
+    const data = doc.data();
+    document.getElementById("collegeList").innerHTML += `
+      <h4>${data.name}</h4>
+      <img src="${data.photo}" width="100"><br>
+      ${data.course}<hr>
+    `;
+  });
+}
+
 </script>
 
 </body>
 </html>
+          
