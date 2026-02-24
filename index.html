@@ -9,22 +9,24 @@
             padding:0;
             font-family: Arial, sans-serif;
 
-            /* Background Image */
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(0,0,0,0.5)),
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
                         url("background.jpg");
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             color: white;
+            scroll-behavior: smooth;
         }
 
         .container{
             text-align:center;
             padding-top:150px;
+            padding-bottom:150px;
         }
 
         h1{
-            font-size:35px;
+            font-size:40px;
+            margin-bottom:20px;
         }
 
         p{
@@ -44,16 +46,64 @@
         button:hover{
             background:#e68900;
         }
+
+        /* Colleges Section */
+        #colleges{
+            background:white;
+            color:black;
+            padding:50px;
+            text-align:center;
+        }
+
+        .college-box{
+            background:#f4f6f9;
+            margin:15px auto;
+            padding:20px;
+            max-width:600px;
+            border-radius:8px;
+            box-shadow:0 0 10px rgba(0,0,0,0.1);
+        }
+
     </style>
 </head>
 
 <body>
 
+    <!-- Home Section -->
     <div class="container">
         <h1>Welcome to Tamil Nadu College Portal</h1>
         <p>Find the best Arts & Science Colleges in your district.</p>
-        <button>View Colleges</button>
+
+        <a href="#colleges">
+            <button>View Colleges</button>
+        </a>
     </div>
+
+
+    <!-- Colleges Section -->
+    <section id="colleges">
+
+        <h2>Available Colleges</h2>
+
+        <div class="college-box">
+            <h3>ABC Arts & Science College</h3>
+            <p>District: Chennai</p>
+            <p>Course: BSc, BCom, BCA, BA</p>
+        </div>
+
+        <div class="college-box">
+            <h3>XYZ Arts College</h3>
+            <p>District: Coimbatore</p>
+            <p>Course: BSc, BCom, BCA, BA</p>
+        </div>
+
+        <div class="college-box">
+            <h3>Government Arts College</h3>
+            <p>District: Madurai</p>
+            <p>Course: BSc, BCom, BCA, BA</p>
+        </div>
+
+    </section>
 
 </body>
 </html>
