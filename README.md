@@ -55,7 +55,6 @@ hr{
     background:#ddd;
 }
 </style>
-
 </head>
 
 <body>
@@ -110,7 +109,7 @@ hr{
 <script>
 
 // =====================
-// AUTO GENERATE 500 COLLEGES
+// REALISTIC 500 COLLEGE GENERATOR
 // =====================
 
 let colleges = [];
@@ -122,14 +121,37 @@ let districts = [
 "Kanyakumari","Virudhunagar"
 ];
 
+let namePrefixes = [
+"Sri","Government","St. Joseph's","National",
+"Bharath","Kongu","Adhiyamaan","Mother Teresa",
+"Periyar","Vivekananda","Dr. Ambedkar",
+"Annai","Velammal","Ramakrishna",
+"Subramania Bharathi","Gandhi","Sacred Heart"
+];
+
+let nameSuffixes = [
+"Arts & Science College",
+"College of Arts",
+"College for Women",
+"Institute of Science",
+"Degree College",
+"Arts College",
+"Science College"
+];
+
 let coursesList = ["BSC","BCA","BCOM","BA"];
 
 for(let i=1; i<=500; i++){
 
     let districtName = districts[i % districts.length];
 
+    let prefix = namePrefixes[i % namePrefixes.length];
+    let suffix = nameSuffixes[i % nameSuffixes.length];
+
+    let collegeName = prefix + " " + districtName + " " + suffix;
+
     colleges.push({
-        name: districtName + " Arts & Science College " + i,
+        name: collegeName,
         street: "Main Road " + i,
         village: "Village " + ((i % 30) + 1),
         district: districtName,
