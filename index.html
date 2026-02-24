@@ -1,109 +1,219 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tamil Nadu Mega College Finder</title>
+<title>Tamil Nadu Mega College Finder</title>
 
-    <style>
-        body{
-            margin:0;
-            padding:0;
-            font-family: Arial, sans-serif;
+<style>
+body{
+    font-family: Arial;
+    margin:0;
+    padding:0;
+    background:url("background.jpg") no-repeat center center fixed;
+    background-size:cover;
+}
 
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)),
-                        url("background.jpg");
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            color: white;
-            scroll-behavior: smooth;
-        }
+.overlay{
+    background:rgba(0,0,0,0.6);
+    min-height:100vh;
+    padding:30px;
+}
 
-        .container{
-            text-align:center;
-            padding-top:150px;
-            padding-bottom:150px;
-        }
+h1{
+    text-align:center;
+    color:white;
+}
 
-        h1{
-            font-size:40px;
-            margin-bottom:20px;
-        }
+.container{
+    background:white;
+    padding:25px;
+    max-width:750px;
+    margin:auto;
+    border-radius:10px;
+}
 
-        p{
-            font-size:18px;
-        }
+input, select, button{
+    width:100%;
+    padding:10px;
+    margin-top:10px;
+    border-radius:5px;
+    border:1px solid #ccc;
+}
 
-        button{
-            padding:12px 25px;
-            font-size:16px;
-            background:#ff9800;
-            border:none;
-            border-radius:5px;
-            cursor:pointer;
-            color:white;
-        }
+button{
+    background:#2c3e50;
+    color:white;
+    border:none;
+    cursor:pointer;
+}
 
-        button:hover{
-            background:#e68900;
-        }
+button:hover{
+    background:#1a252f;
+}
 
-        /* Colleges Section */
-        #colleges{
-            background:white;
-            color:black;
-            padding:50px;
-            text-align:center;
-        }
+#output{
+    margin-top:20px;
+}
 
-        .college-box{
-            background:#f4f6f9;
-            margin:15px auto;
-            padding:20px;
-            max-width:600px;
-            border-radius:8px;
-            box-shadow:0 0 10px rgba(0,0,0,0.1);
-        }
-
-    </style>
+hr{
+    border:0;
+    height:1px;
+    background:#ddd;
+}
+</style>
 </head>
 
 <body>
 
-    <!-- Home Section -->
-    <div class="container">
-        <h1>Welcome to Tamil Nadu College Portal</h1>
-        <p>Find the best Arts & Science Colleges in your district.</p>
+<div class="overlay">
 
-        <a href="#colleges">
-            <button>View Colleges</button>
-        </a>
-    </div>
+<h1>🎓 Tamil Nadu College Admission System</h1>
 
+<div class="container">
 
-    <!-- Colleges Section -->
-    <section id="colleges">
+<label>Enter Your 12th Mark (%)</label>
+<input type="number" id="mark" placeholder="Enter your mark">
 
-        <h2>Available Colleges</h2>
+<label>Select Course</label>
+<select id="course">
+<option value="">Select Course</option>
+<option>BSC</option>
+<option>BCA</option>
+<option>BCOM</option>
+<option>BA</option>
+</select>
 
-        <div class="college-box">
-            <h3>ABC Arts & Science College</h3>
-            <p>District: Chennai</p>
-            <p>Course: BSc, BCom, BCA, BA</p>
-        </div>
+<label>Select District</label>
+<select id="district">
+<option value="">Select District</option>
+<option>Coimbatore</option>
+<option>Chennai</option>
+<option>Madurai</option>
+<option>Trichy</option>
+<option>Salem</option>
+<option>Erode</option>
+<option>Tirunelveli</option>
+<option>Vellore</option>
+<option>Thanjavur</option>
+<option>Dharmapuri</option>
+<option>Namakkal</option>
+<option>Cuddalore</option>
+<option>Dindigul</option>
+<option>Karur</option>
+<option>Tiruppur</option>
+<option>Kanyakumari</option>
+<option>Virudhunagar</option>
+</select>
 
-        <div class="college-box">
-            <h3>XYZ Arts College</h3>
-            <p>District: Coimbatore</p>
-            <p>Course: BSc, BCom, BCA, BA</p>
-        </div>
+<label>Maximum Semester Fee (₹)</label>
+<input type="number" id="fee" placeholder="Enter maximum fee">
 
-        <div class="college-box">
-            <h3>Government Arts College</h3>
-            <p>District: Madurai</p>
-            <p>Course: BSc, BCom, BCA, BA</p>
-        </div>
+<button onclick="searchCollege()">Search Colleges</button>
 
-    </section>
+<div id="output"></div>
+
+</div>
+</div>
+
+<script>
+
+// =====================
+// AUTO GENERATE 500 COLLEGES
+// =====================
+
+let colleges = [];
+
+let districts = [
+"Coimbatore","Chennai","Madurai","Trichy","Salem",
+"Erode","Tirunelveli","Vellore","Thanjavur","Dharmapuri",
+"Namakkal","Cuddalore","Dindigul","Karur","Tiruppur",
+"Kanyakumari","Virudhunagar"
+];
+
+let prefixes = [
+"Sri","Government","St. Joseph's","National",
+"Bharath","Kongu","Adhiyamaan","Mother Teresa",
+"Periyar","Vivekananda","Dr. Ambedkar",
+"Annai","Velammal","Ramakrishna",
+"Subramania Bharathi","Gandhi","Sacred Heart"
+];
+
+let suffixes = [
+"Arts & Science College",
+"College of Arts",
+"College for Women",
+"Institute of Science",
+"Degree College",
+"Arts College",
+"Science College"
+];
+
+let coursesList = ["BSC","BCA","BCOM","BA"];
+
+for(let i=1; i<=500; i++){
+
+    let districtName = districts[i % districts.length];
+    let prefix = prefixes[i % prefixes.length];
+    let suffix = suffixes[i % suffixes.length];
+
+    let collegeName = prefix + " " + districtName + " " + suffix;
+
+    colleges.push({
+        name: collegeName,
+        street: "Main Road " + i,
+        village: "Village " + ((i % 30) + 1),
+        district: districtName,
+        course: coursesList,
+        sem_fee: 5000 + Math.floor(Math.random()*30000),
+        last_date: "30-06-2026",
+        min_mark: 40 + Math.floor(Math.random()*30)
+    });
+}
+
+// =====================
+// SEARCH FUNCTION
+// =====================
+
+function searchCollege(){
+
+let mark = parseInt(document.getElementById("mark").value) || 0;
+let course = document.getElementById("course").value;
+let district = document.getElementById("district").value;
+let fee_limit = parseInt(document.getElementById("fee").value) || 100000;
+
+if(!course || !district){
+    document.getElementById("output").innerHTML="Please select course and district.";
+    return;
+}
+
+let result="";
+let found=false;
+
+for(let college of colleges){
+
+if(college.district === district &&
+college.course.includes(course) &&
+mark >= college.min_mark &&
+college.sem_fee <= fee_limit){
+
+result += "<b>"+college.name+"</b><br>";
+result += "📍 Location: "+college.street+", "+college.village+", "+college.district+"<br>";
+result += "💰 Semester Fee: ₹"+college.sem_fee+"<br>";
+result += "📅 Last Date: "+college.last_date+"<br>";
+result += "<hr>";
+
+found=true;
+}
+}
+
+if(!found){
+result="No colleges found based on your selection.";
+}
+
+document.getElementById("output").innerHTML=result;
+
+}
+
+</script>
 
 </body>
 </html>
