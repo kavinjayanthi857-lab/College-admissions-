@@ -59,7 +59,7 @@ hr{
 
 <body>
 
-<h1>🎓 Tamil Nadu 500+ College Admission System</h1>
+<h1>🎓 College Admission System</h1>
 
 <div class="container">
 
