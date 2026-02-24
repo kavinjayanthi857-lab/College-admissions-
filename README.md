@@ -2,213 +2,118 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Arts & Science College Admission</title>
+    <title>AI Admission Chatbot</title>
+    <style>
+        body {
+            font-family: Arial;
+            background: #f4f6f9;
+            padding: 20px;
+        }
 
-  <!-- Firebase -->
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js"></script>
+        .container {
+            background: white;
+            padding: 20px;
+            max-width: 500px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 0 10px #ccc;
+        }
 
-  <style>
-    body {
-      font-family: Arial;
-      background: #f2f2f2;
-      text-align: center;
-    }
+        input, select, button {
+            width: 100%;
+            padding: 10px;
+            margin: 8px 0;
+        }
 
-    .box {
-      background: white;
-      padding: 20px;
-      margin: 20px auto;
-      width: 320px;
-      border-radius: 10px;
-      box-shadow: 0px 0px 10px gray;
-    }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
 
-    input, select, button {
-      margin: 6px;
-      padding: 8px;
-      width: 90%;
-    }
+        button:hover {
+            background: #0056b3;
+        }
 
-    img {
-      margin-top: 10px;
-      border-radius: 8px;
-    }
-  </style>
+        .result {
+            margin-top: 15px;
+            background: #f0f0f0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
 </head>
 <body>
 
-<h1>Arts & Science College Admission Portal</h1>
+<div class="container">
+    <h2>AI Admission Chatbot</h2>
 
-<!-- STUDENT REGISTER -->
-<div class="box">
-  <h3>Student Register</h3>
-  <input type="text" id="sname" placeholder="Name"><br>
-  <input type="number" id="smark" placeholder="12th Mark"><br>
+    <input type="text" id="name" placeholder="Enter your name">
+    <input type="number" id="mark" placeholder="Enter 12th mark (%)">
 
-  <select id="sdistrict">
-    <option>Chennai</option>
-    <option>Coimbatore</option>
-    <option>Madurai</option>
-    <option>Trichy</option>
-  </select><br>
+    <select id="course">
+        <option>BSC</option>
+        <option>BCA</option>
+        <option>BCOM</option>
+        <option>BA</option>
+        <option>MBBS</option>
+        <option>BTECH</option>
+    </select>
 
-  <input type="email" id="semail" placeholder="Email"><br>
-  <input type="password" id="spass" placeholder="Password"><br>
+    <input type="number" id="fee" placeholder="Enter maximum fee limit">
 
-  <button onclick="studentRegister()">Register</button>
-</div>
+    <button onclick="searchCollege()">Search</button>
 
-<!-- LOGIN -->
-<div class="box">
-  <h3>Login</h3>
-  <input type="email" id="loginEmail" placeholder="Email"><br>
-  <input type="password" id="loginPass" placeholder="Password"><br>
-  <button onclick="login()">Login</button>
-</div>
-
-<!-- STAFF ADD COLLEGE -->
-<div class="box">
-  <h3>Staff Add College</h3>
-
-  <input type="text" id="cname" placeholder="College Name"><br>
-
-  <select id="cdistrict">
-    <option>Chennai</option>
-    <option>Coimbatore</option>
-    <option>Madurai</option>
-    <option>Trichy</option>
-  </select><br>
-
-  <input type="text" id="clocation" placeholder="Location"><br>
-  <input type="number" id="cfees" placeholder="Semester Fees"><br>
-  <input type="date" id="clastdate"><br>
-  <input type="file" id="cphoto"><br>
-
-  <button onclick="addCollege()">Add College</button>
-</div>
-
-<!-- COLLEGE DISPLAY -->
-<div class="box">
-  <h3>Colleges</h3>
-  <div id="collegeList"></div>
+    <div class="result" id="output"></div>
 </div>
 
 <script>
+function searchCollege() {
 
-  // 🔥 Replace with YOUR Firebase config
-  const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_BUCKET",
-    messagingSenderId: "YOUR_ID",
-    appId: "YOUR_APP_ID"
-  };
+    let name = document.getElementById("name").value;
+    let mark = parseInt(document.getElementById("mark").value);
+    let course = document.getElementById("course").value;
+    let fee_limit = parseInt(document.getElementById("fee").value);
 
-  firebase.initializeApp(firebaseConfig);
+    let colleges = [
+        {name:"Nehru Arts and Science College", course:["BSC","BCA","BCOM","BA"], fee:40000, last_date:"30-06-2026", min_mark:50},
+        {name:"Krishna College of Arts and Science", course:["BSC","BCOM","BA"], fee:35000, last_date:"25-06-2026", min_mark:50},
+        {name:"Ramakrishna College of Arts and Science", course:["BSC","BCA"], fee:60000, last_date:"28-06-2026", min_mark:60},
+        {name:"Nehru Institution of Technology", course:["BCA","BSC","BTECH"], fee:75000, last_date:"20-06-2026", min_mark:60},
+        {name:"Kovai Medical College", course:["MBBS"], fee:500000, last_date:"15-06-2026", min_mark:85},
 
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  const storage = firebase.storage();
+        {name:"PSG College of Arts and Science", course:["BSC","BCA","BCOM","BA"], fee:55000, last_date:"30-06-2026", min_mark:60},
+        {name:"Hindusthan College of Arts and Science", course:["BSC","BCA","BCOM","BA"], fee:45000, last_date:"27-06-2026", min_mark:55},
+        {name:"Sri Ramakrishna Engineering College", course:["BTECH"], fee:120000, last_date:"22-06-2026", min_mark:70},
+        {name:"Dr NGP Arts and Science College", course:["BSC","BCA","BCOM"], fee:48000, last_date:"29-06-2026", min_mark:55},
+        {name:"Government Arts College Coimbatore", course:["BSC","BCOM","BA"], fee:12000, last_date:"10-07-2026", min_mark:50},
+        {name:"Karpagam Academy of Higher Education", course:["BSC","BCA","BTECH"], fee:85000, last_date:"24-06-2026", min_mark:65},
+        {name:"Amrita School of Engineering", course:["BTECH"], fee:150000, last_date:"18-06-2026", min_mark:75},
+        {name:"KMCH College of Allied Health Sciences", course:["BSC"], fee:70000, last_date:"26-06-2026", min_mark:60},
+        {name:"SNS College of Technology", course:["BTECH"], fee:90000, last_date:"23-06-2026", min_mark:65},
+        {name:"Sri Krishna Arts and Science College", course:["BSC","BCA","BCOM"], fee:42000, last_date:"28-06-2026", min_mark:55}
+    ];
 
-  // STUDENT REGISTER
-  function studentRegister() {
+    let result = "";
+    let found = false;
 
-    auth.createUserWithEmailAndPassword(
-      semail.value,
-      spass.value
-    ).then((userCredential) => {
+    for(let college of colleges) {
+        if(college.course.includes(course) && mark >= college.min_mark && college.fee <= fee_limit) {
+            result += `<b>${college.name}</b><br>
+                       Fees: ₹${college.fee}<br>
+                       Last Date: ${college.last_date}<br><hr>`;
+            found = true;
+        }
+    }
 
-      db.collection("students").doc(userCredential.user.uid).set({
-        name: sname.value,
-        mark: smark.value,
-        district: sdistrict.value.trim().toLowerCase(),
-        email: semail.value
-      });
+    if(!found) {
+        result = "No colleges found within your fee limit.";
+    }
 
-      alert("Student Registered Successfully!");
-    });
-  }
-
-  // LOGIN
-  function login() {
-    auth.signInWithEmailAndPassword(
-      loginEmail.value,
-      loginPass.value
-    ).then(() => {
-      alert("Login Success!");
-      loadColleges();
-    });
-  }
-
-  // ADD COLLEGE
-  function addCollege() {
-
-    const file = cphoto.files[0];
-    const storageRef = storage.ref("collegePhotos/" + file.name);
-
-    storageRef.put(file).then(() => {
-      storageRef.getDownloadURL().then((url) => {
-
-        db.collection("colleges").add({
-          name: cname.value,
-          district: cdistrict.value.trim().toLowerCase(),
-          location: clocation.value,
-          fees: cfees.value,
-          lastdate: clastdate.value,
-          photo: url
-        });
-
-        alert("College Added Successfully!");
-      });
-    });
-  }
-
-  // LOAD COLLEGES BASED ON STUDENT DISTRICT
-  function loadColleges() {
-
-    auth.onAuthStateChanged(user => {
-      if(user){
-
-        db.collection("students").doc(user.uid).get().then(doc => {
-
-          const studentDistrict = doc.data().district;
-
-          db.collection("colleges").get().then(snapshot => {
-
-            collegeList.innerHTML = "";
-
-            snapshot.forEach(doc => {
-
-              const data = doc.data();
-
-              if(data.district === studentDistrict){
-
-                collegeList.innerHTML += `
-                  <h4>${data.name}</h4>
-                  <img src="${data.photo}" width="150"><br>
-                  <b>Location:</b> ${data.location}<br>
-                  <b>Semester Fees:</b> ₹${data.fees}<br>
-                  <b>Last Date:</b> ${data.lastdate}<br>
-                  <hr>
-                `;
-              }
-
-            });
-
-          });
-
-        });
-
-      }
-    });
-  }
-
+    document.getElementById("output").innerHTML = result;
+}
 </script>
 
 </body>
 </html>
-      
